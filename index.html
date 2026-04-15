@@ -28,16 +28,18 @@
     :root {
       --bg: #050505;
       --bg-elevated: #0a0a0a;
-      --surface: #0e0e0e;
-      --surface-2: #141414;
+      --surface: rgba(14, 14, 14, 0.6);
+      --surface-2: rgba(20, 20, 20, 0.6);
       --border: rgba(255, 255, 255, 0.06);
       --border-lit: rgba(255, 255, 255, 0.1);
       --glass-bg: rgba(255, 255, 255, 0.03);
       --glass-bg-2: rgba(255, 255, 255, 0.05);
       --accent: #c6ff57;
+      --accent-2: #00f0ff;
+      --accent-3: #b14bff;
       --accent-dim: #a3d940;
-      --accent-glow: rgba(198, 255, 87, 0.15);
-      --accent-glow-2: rgba(198, 255, 87, 0.06);
+      --accent-glow: rgba(198, 255, 87, 0.25);
+      --accent-glow-2: rgba(198, 255, 87, 0.1);
       --text: #f0f0f0;
       --text-2: #c8c8c8;
       --muted: #666;
@@ -53,6 +55,29 @@
       scroll-behavior: smooth;
       scrollbar-width: thin;
       scrollbar-color: var(--accent-dim) var(--bg);
+    }
+
+    @keyframes gradient-pan {
+      0% {
+        background-position: 0% 50%;
+      }
+
+      50% {
+        background-position: 100% 50%;
+      }
+
+      100% {
+        background-position: 0% 50%;
+      }
+    }
+
+    .text-gradient {
+      background: linear-gradient(90deg, var(--accent), var(--accent-2), var(--accent-3), var(--accent));
+      background-size: 300% 300%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: gradient-pan 6s ease infinite;
     }
 
     body {
@@ -86,21 +111,28 @@
       position: fixed;
       top: 0;
       left: 0;
-      width: 16px;
-      height: 16px;
+      width: 20px;
+      height: 20px;
       background: var(--accent);
       border-radius: 50%;
       pointer-events: none;
       z-index: 9999;
-      mix-blend-mode: difference;
+      mix-blend-mode: screen;
+      box-shadow: 0 0 15px var(--accent), 0 0 30px var(--accent-3);
       transform: translate(-50%, -50%) scale(1);
-      transition: transform 0.25s var(--ease-spring), opacity 0.3s;
+      transition: transform 0.3s var(--ease-spring), width 0.3s var(--ease-out), height 0.3s var(--ease-out), opacity 0.3s;
       will-change: transform;
     }
 
     .cursor.expanded {
-      transform: translate(-50%, -50%) scale(3);
-      opacity: 0.6;
+      transform: translate(-50%, -50%) scale(1);
+      width: 54px;
+      height: 54px;
+      opacity: 1;
+      background: rgba(198, 255, 87, 0.05);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      border: 1px solid rgba(198, 255, 87, 0.2);
     }
 
     /* ── NEURAL CANVAS ── */
@@ -1459,7 +1491,7 @@
   <!-- HERO -->
   <section class="hero">
     <div class="hero-tag reveal">Available for freelance work</div>
-    <h1 class="hero-name reveal reveal-delay-1">JAY<span>.</span></h1>
+    <h1 class="hero-name reveal reveal-delay-1">JAY<span class="text-gradient">.</span></h1>
     <p class="hero-subtitle reveal reveal-delay-2">Years of crafting digital experiences.<br>Clean code. Bold design.
       Fast delivery.</p>
     <div class="hero-typing reveal reveal-delay-3">
@@ -1583,17 +1615,21 @@
         </div>
       </div>
 
-      <div class="project-card coming-soon reveal reveal-delay-2">
+      <div class="project-card reveal reveal-delay-2" data-tilt
+        onclick="window.open('https://safewalk-ruby.vercel.app/','_blank')">
+        <div class="project-glow"></div>
         <div class="project-card-inner">
           <div class="project-img project-img-3">
-            <div class="project-img-label">NEXT.</div>
-            <span>Coming Soon</span>
+            <div class="project-img-label">SAFE.</div>
+            <div class="project-live-badge"><span class="dot"></span> WIP</div>
           </div>
           <div class="project-info">
-            <div class="project-tag">Your Next Project</div>
-            <div class="project-name">Work In Progress</div>
-            <div class="project-desc">More projects coming soon. Currently open to new clients and exciting
-              collaborations.</div>
+            <div class="project-tag">Work In Progress</div>
+            <div class="project-name">Safewalk</div>
+            <div class="project-desc">A progressive web application currently in development, designed to provide safe
+              walking routes and navigation.</div>
+            <a href="https://safewalk-ruby.vercel.app/" target="_blank" class="project-link"
+              onclick="event.stopPropagation()">safewalk-ruby.vercel.app <span>↗</span></a>
           </div>
         </div>
       </div>
@@ -1604,7 +1640,7 @@
   <section id="contact">
     <div class="contact-header reveal">
       <div class="section-label" style="justify-content:center;">Let's Create</div>
-      <h2>Let's build the<br><span>future together.</span></h2>
+      <h2>Let's build the<br><span class="text-gradient">future together.</span></h2>
       <p>Combining years of UI/UX expertise with modern AI-driven development to scale your business.</p>
     </div>
 
@@ -1719,90 +1755,80 @@
        JS ENGINE — Cinematic Interactions
        ═══════════════════════════════════════ */
 
-    // ── NEURAL BACKGROUND ──
+    // ── AURORA BACKGROUND ──
     (function () {
       const canvas = document.getElementById('neural-bg');
+      if (!canvas) return;
       const ctx = canvas.getContext('2d');
-      let w, h, nodes = [], mouseX = 0, mouseY = 0;
-      const NODE_COUNT = 60;
-      const CONNECTION_DIST = 150;
+      let w, h;
+      let time = 0;
 
       function resize() {
         w = canvas.width = window.innerWidth;
         h = canvas.height = window.innerHeight;
       }
 
-      function createNodes() {
-        nodes = [];
-        for (let i = 0; i < NODE_COUNT; i++) {
-          nodes.push({
-            x: Math.random() * w,
-            y: Math.random() * h,
-            vx: (Math.random() - 0.5) * 0.4,
-            vy: (Math.random() - 0.5) * 0.4,
-            r: Math.random() * 2 + 1,
-          });
+      class Orb {
+        constructor(x, y, r, color, speed, angle) {
+          this.baseX = x;
+          this.baseY = y;
+          this.r = r;
+          this.color = color;
+          this.speed = speed;
+          this.angle = angle;
         }
+        draw(t) {
+          const x = this.baseX + Math.cos(this.angle + t * this.speed) * w * 0.3;
+          const y = this.baseY + Math.sin(this.angle + t * this.speed) * h * 0.3;
+
+          const gradient = ctx.createRadialGradient(x, y, 0, x, y, this.r);
+          gradient.addColorStop(0, this.color);
+          gradient.addColorStop(1, 'transparent');
+
+          ctx.beginPath();
+          ctx.arc(x, y, this.r, 0, Math.PI * 2);
+          ctx.fillStyle = gradient;
+          ctx.fill();
+        }
+      }
+
+      const orbs = [];
+      let mouseX = window.innerWidth / 2, mouseY = window.innerHeight / 2;
+      let tx = mouseX, ty = mouseY;
+
+      function init() {
+        resize();
+        orbs.length = 0;
+        // Lime, Blue, Purple
+        orbs.push(new Orb(w * 0.5, h * 0.3, w * 0.6, 'rgba(198, 255, 87, 0.15)', 0.0005, 0));
+        orbs.push(new Orb(w * 0.3, h * 0.7, w * 0.5, 'rgba(0, 240, 255, 0.12)', 0.0004, 2));
+        orbs.push(new Orb(w * 0.7, h * 0.6, w * 0.7, 'rgba(177, 75, 255, 0.1)', 0.0006, 4));
       }
 
       function animate() {
         ctx.clearRect(0, 0, w, h);
 
-        nodes.forEach(n => {
-          // Mouse parallax influence
-          const dx = mouseX - n.x;
-          const dy = mouseY - n.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 200) {
-            n.vx += dx * 0.00003;
-            n.vy += dy * 0.00003;
-          }
+        tx += (mouseX - tx) * 0.05;
+        ty += (mouseY - ty) * 0.05;
 
-          n.x += n.vx;
-          n.y += n.vy;
+        // Base canvas color
+        ctx.fillStyle = '#050505';
+        ctx.fillRect(0, 0, w, h);
 
-          // Boundary wrap
-          if (n.x < 0) n.x = w;
-          if (n.x > w) n.x = 0;
-          if (n.y < 0) n.y = h;
-          if (n.y > h) n.y = 0;
+        ctx.save();
+        ctx.translate((tx - w / 2) * 0.1, (ty - h / 2) * 0.1);
+        ctx.globalCompositeOperation = 'screen';
+        orbs.forEach(orb => orb.draw(time));
+        ctx.restore();
 
-          // Dampen velocity
-          n.vx *= 0.999;
-          n.vy *= 0.999;
-
-          // Draw node
-          ctx.beginPath();
-          ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
-          ctx.fillStyle = 'rgba(198, 255, 87, 0.3)';
-          ctx.fill();
-        });
-
-        // Draw connections
-        for (let i = 0; i < nodes.length; i++) {
-          for (let j = i + 1; j < nodes.length; j++) {
-            const dx = nodes[i].x - nodes[j].x;
-            const dy = nodes[i].y - nodes[j].y;
-            const dist = Math.sqrt(dx * dx + dy * dy);
-            if (dist < CONNECTION_DIST) {
-              ctx.beginPath();
-              ctx.moveTo(nodes[i].x, nodes[i].y);
-              ctx.lineTo(nodes[j].x, nodes[j].y);
-              ctx.strokeStyle = `rgba(198, 255, 87, ${0.06 * (1 - dist / CONNECTION_DIST)})`;
-              ctx.lineWidth = 0.5;
-              ctx.stroke();
-            }
-          }
-        }
-
+        time += 16;
         requestAnimationFrame(animate);
       }
 
-      window.addEventListener('resize', () => { resize(); createNodes(); });
+      window.addEventListener('resize', () => { init(); });
       document.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; });
 
-      resize();
-      createNodes();
+      init();
       animate();
     })();
 
