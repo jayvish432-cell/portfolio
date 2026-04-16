@@ -122,13 +122,13 @@
       z-index: 9999;
       mix-blend-mode: screen;
       box-shadow: 0 0 15px var(--accent), 0 0 30px var(--accent-3);
-      transform: translate(-50%, -50%) scale(1);
-      transition: transform 0.3s var(--ease-spring), width 0.3s var(--ease-out), height 0.3s var(--ease-out), opacity 0.3s;
-      will-change: transform;
+      transform: translate(-50%, -50%);
+      transition: width 0.3s var(--ease-out), height 0.3s var(--ease-out), opacity 0.3s, background 0.3s;
+      will-change: transform, left, top;
     }
 
     .cursor.expanded {
-      transform: translate(-50%, -50%) scale(1);
+      transform: translate(-50%, -50%);
       width: 54px;
       height: 54px;
       opacity: 1;
@@ -1538,7 +1538,7 @@
   <div class="stats-section">
     <div class="stats-grid reveal">
       <div class="stat-card">
-        <div class="stat-num" data-count="5" data-suffix="+">0</div>
+        <div class="stat-num" data-count="3" data-suffix="">0</div>
         <div class="stat-label">Sites Built</div>
       </div>
       <div class="stat-card">
@@ -1648,6 +1648,24 @@
       </div>
 
 
+      <div class="project-card reveal reveal-delay-2" data-tilt
+        onclick="window.open('https://safewalkss.vercel.app','_blank')">
+        <div class="project-glow"></div>
+        <div class="project-card-inner">
+          <div class="project-img project-img-3">
+            <div class="project-img-label">SAFE.</div>
+            <div class="project-live-badge"><span class="dot"></span> Live</div>
+          </div>
+          <div class="project-info">
+            <div class="project-tag">Web App · Next.js · Safety</div>
+            <div class="project-name">SafeWalk</div>
+            <div class="project-desc">Your safe night companion. Calculates safe routes, maps dangerous zones, and
+              provides real-time community alerts. 12,847+ routes calculated and 3,456+ reviews.</div>
+            <a href="https://safewalkss.vercel.app" target="_blank" class="project-link"
+              onclick="event.stopPropagation()">safewalkss.vercel.app <span>↗</span></a>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -1757,7 +1775,7 @@
 
   <!-- FOOTER -->
   <footer>
-    <span>© 2025 JAY. All rights reserved.</span>
+    <span>© 2026 JAY. All rights reserved.</span>
     <div class="footer-links">
       <a href="https://github.com/jayvish432-cell" target="_blank" data-magnetic>GitHub ↗</a>
       <a href="https://www.linkedin.com/in/jay-vishwakarma-05724926a" target="_blank" data-magnetic>LinkedIn ↗</a>
@@ -1853,15 +1871,30 @@
       const cursor = document.getElementById('cursor');
       if (!cursor || window.innerWidth < 768) return;
 
-      let cx = 0, cy = 0, tx = 0, ty = 0;
+      // Initialize to center of screen to avoid (0,0) jump
+      let cx = window.innerWidth / 2;
+      let cy = window.innerHeight / 2;
+      let tx = cx;
+      let ty = cy;
 
-      document.addEventListener('mousemove', e => { tx = e.clientX; ty = e.clientY; });
+      // Update position immediately on first move
+      let firstMove = true;
+
+      window.addEventListener('mousemove', e => {
+        tx = e.clientX;
+        ty = e.clientY;
+        if (firstMove) {
+          cx = tx;
+          cy = ty;
+          firstMove = false;
+        }
+      }, { passive: true });
 
       function lerp(a, b, t) { return a + (b - a) * t; }
 
       function update() {
-        cx = lerp(cx, tx, 0.15);
-        cy = lerp(cy, ty, 0.15);
+        cx = lerp(cx, tx, 0.2);
+        cy = lerp(cy, ty, 0.2);
         cursor.style.left = cx + 'px';
         cursor.style.top = cy + 'px';
         requestAnimationFrame(update);
@@ -1875,7 +1908,7 @@
         el.addEventListener('mouseleave', () => cursor.classList.remove('expanded'));
       });
 
-      // Hide when mouse leaves window
+      // Show/hide based on document visibility
       document.addEventListener('mouseleave', () => { cursor.style.opacity = 0; });
       document.addEventListener('mouseenter', () => { cursor.style.opacity = 1; });
     })();
